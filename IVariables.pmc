@@ -1,0 +1,185 @@
+I5=3   ; let PLCs run
+
+I35=0  ; Abort and watchdog enable
+
+I7000=1473    ; Servo IC0 Max Phase/PWM Frequency Control
+I7001=3       ; Servo IC0 Phase Clock Frequency Control
+I7002=1       ; Servo IC0 Servo Clock Frequency Control
+
+I7100=1473    ; Servo IC0 Max Phase/PWM Frequency Control
+I7101=3       ; Servo IC0 Phase Clock Frequency Control
+I7102=1       ; Servo IC0 Servo Clock Frequency Control
+
+
+
+I10=1677653   ; Servo Interrupt Time
+
+
+; Clock calculations
+I15=0                         ; Trigonometric calculation in degrees
+#define MaxPhaseFreq    P8000 ; Max Phase Clock [KHz]
+#define PWMClk          P8001 ; PWM Clock [KHz]
+#define PhaseClk        P8002 ; Phase Clock [KHz]
+#define ServoClk        P8003 ; Servo Clock [KHz]
+
+MaxPhaseFreq=117964.8/(2*I7000+3)
+PWMClk=117964.8/(4*I7000+6)
+PhaseClk=MaxPhaseFreq/(I7001+1)
+ServoClk=PhaseClk/(I7002+1)
+
+
+
+
+; Encoder conversion table setup
+I8000=$68043F      ; Parallel read of Y/X:$BF
+I8001=$18018      ; Use 24 bits starting at X bit 0
+I8002=$EC0001      ; Integrate result from I8001
+I8003 = $278B3C
+I8004 = $20000    
+I8005=$0           ; end of table
+
+
+
+; Position and Velocity feedback addresses
+I803=$3505    I804=$3505    ; Motor 8 position and velocity feedback
+
+
+
+; Motor activation and Commutation
+I800=1      ; Motors 8 active
+I801=1      ; Motors 8 Commutation Enabled (from X-register)
+
+
+; Command Output Address
+I802=$07811A   ; Motor 8 Output Address
+
+
+; Current Feedback, ADC Mask, Commutation angle
+I882=$07811E          ; Motor 8 Current Feedback Address
+I884=$FFFC00    ; Motors 8 Current Loop Feedback                                                         
+I872=512        ; Commutation Phase Angle.2-Phase opposite voltage & current sign (Geo Brick LV Specific)
+
+; Flag Address, Mode Control
+I825=$078118      ; Motor 8 Flag Address
+I824=$800401      ; Motor 8 Flag Control. High True Amp Fault, disable 3rd Harmonic 
+
+
+; Commutation Address, Cycle size
+I883=$3503         ; Motor 8 on-going Commutation Address (ECT Integration Result)
+I870=1       ; Motors 8 Single cycle size
+I871=65536   ; Microsteps per Ixx70 commutation cycles
+
+
+
+
+
+
+
+#define ServoClk                P8003      ; [KHz] Computed in Dominant Clock Settings Section
+#define StepAngle               1.8        ; Step angle degrees -User Input
+#define MotorSpeed              500        ; motor speed spec [rpm] -User Input (a guess from plots)
+#define ElecCyclePerRev         P7004      ; Electrical Cycle Per Reolution
+ElecCyclePerRev=360/(4* StepAngle)
+#define MaxMtrSpeed P7005                  ; This is the maximum achievable motor speed
+MaxMtrSpeed=( ServoClk*1000)/( ElecCyclePerRev*6)*60
+#define CalculatedIxx69 P7006 ; Calculated Ixx69
+CalculatedIxx69= MotorSpeed*ElecCyclePerRev/60*2048/6/(ServoClk*1000)
+
+;I869,8,100=42.667  ; Motors 8 Output Command Limit
+I869=28.443         ; Motors 8 Output Command Limit
+
+
+
+
+
+
+// Because Bus Voltage > Motor Rated Voltage
+#define DCBusInput  48     ; DC Bus Voltage -User Input
+#define Mtr1Voltage 1.9    ; Motor 1 Rated Voltage [VDC]-User Input 
+#define Mtr2Voltage 1.9    ; Motor 2 Rated Voltage [VDC]-User Input 
+
+;I166=I7000*Mtr1Voltage/DCBusInput    ; Motor 1 PWM Scale Factor (Geo Brick LV Specific)
+;I266=I7000*Mtr2Voltage/DCBusInput    ; Motor 2 PWM Scale Factor (Geo Brick LV Specific)
+
+I866=1000
+
+
+
+
+
+
+
+// I2T Protection, Magnetization Current: Ixx57, Ixx58, Ixx69, Ixx77
+I15=0                         ; Trigonometric calculation in degrees
+#define ContCurrent  2.69     ; Continuous Current Limit [Amps] –User Input
+#define PeakCurrent  3.80      ; Instantaneous Current Limit [Amps] –User Input
+#define MaxADC       33.85    ; Brick LV full range ADC reading (see electrical specifications)
+#define ServoClk     P8003    ; [KHz] Computed in Dominant Clock Settings Section
+#define I2TOnTime    1        ; Time allowed at peak Current [sec]
+#define VoltOutLimit  P7007   ; This is Ixx69 normally used in direct digital PWM
+
+I857=INT(32767*(ContCurrent*1.414/MaxADC)*cos(30))
+I877=I857/SQRT(2)
+VoltOutLimit=INT(32767*(PeakCurrent*1.414/MaxADC)*cos(30))
+I858=INT((VoltOutLimit*VoltOutLimit-I857*I857)*ServoClk*1000*I2TOnTime/(32767*32767))
+
+
+
+I810 = $78B3C   ; Power-on servo position address
+
+
+// Phasing, Power-On Mode: Ixx80, Ixx73, Ixx74, Ixx81, Ixx91
+I880=0
+I873=0
+I874=0
+
+I881=$3505 ; ? $3503 ? ; Motor 8 Power-On Commutation, Integrated Output #1
+
+I891=$500000 ; Mtrs 8 Pwr-on Pos. format Read 16 (11+5) bits of X register Ixx81
+
+// Position-Loop PID Gains: Ixx30...Ixx39
+I830=50
+I831=0
+I832=0
+I833=0
+I834=1
+I835=0
+I836=0
+I837=0
+I838=0
+I839=0
+
+
+// Initial current loop gais
+I861=0.1
+I862=0.1
+I876=0.5
+
+
+
+
+// Velocity and acceleration
+I815=20      ; Limit/abort deceleration rate
+I816=110    ; Max Program Velocity
+I817=20      ; Max Program Acceleration
+I819=20      ; Max Jog/Home Acceleration
+I821=0       ; Jog/Home s-curve time (ms)
+I822=110    ; Jog Speed
+
+I811=64000  ; Following error limit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

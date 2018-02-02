@@ -1,0 +1,93 @@
+// This PLC sets all motors to stepper configuration.  I5 must be set to run
+// this on startup
+
+
+M5990..5991->* ; Self-referenced M-Variables
+M5990..5991=0 ; Reset at download
+
+//========================= GLOBAL CONTROL REGISTERS ======================================//
+#define SSIGlobalCtrl5_8 M5990 ; Channels 5-8 BiSS global control register
+SSIGlobalCtrl5_8->X:$78B3F,0,24,U ; Channels 5-8 BiSS global control register address
+
+//======================== CHANNEL CONTROL REGISTERS ======================================//
+#define Ch8SSICtrl M5991 ; Channel 8 BiSS control register
+Ch8SSICtrl->X:$78B3C,0,24,U ; Channel 8 BiSS control register Address
+
+
+
+
+Open PLC 1 Clear
+
+// Disable all other PLCs, and kill motors DIS PLC 0
+DIS PLCC 0..31
+DIS PLC 2..31
+CMD^K
+// Axis 1 Settings
+CMD"WX:$78014,$F8CDFE" ; Select axis # and set motor mode (Stepper)
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F84DFE" ; Clear error(s) on selected axis in stepper mode
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F00DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 2 Settings
+CMD"WX:$78014,$F9CDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F94DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F10DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 3 Settings
+CMD"WX:$78014,$FACDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$FA4DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F20DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 4 Settings
+CMD"WX:$78014,$FBCDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$FB4DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78014,$F30DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 5 Settings
+CMD"WX:$78114,$F8CDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F84DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F00DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 6 Settings
+CMD"WX:$78114,$F9CDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F94DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F10DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 7 Settings
+CMD"WX:$78114,$FACDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$FA4DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F20DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+// Axis 8 Settings
+CMD"WX:$78114,$FBCDFE" ; Select axis # and set motor mode (Stepper) 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$FB4DFE" ; Clear error(s) on selected axis in stepper mode 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+CMD"WX:$78114,$F30DFE" ; Save and write protect channel from strobe word 
+I5111 = 50 * 8388608/I10 While(I5111 > 0)EndW
+
+
+;SSIGlobalCtrl5_8=$63000B    ; Trigger at Phase, 1 MHz serial Clock (M=99, N=0) –User Input
+;Ch8SSICtrl=$211492          ; Channel 8, BiSS-C protocol, 18-bit resolution –User Input
+;SSIGlobalCtrl5_8=$63220B    ; mine
+;Ch8SSICtrl=$21149A          ; mine
+SSIGlobalCtrl5_8=$63232B    ; theirs
+Ch8SSICtrl=$2114A0          ; theirs
+I5111=500*8388608/I10 while(I5111>0) endw ; 1⁄2 sec delay
+
+
+Dis PLC 1
+Close
