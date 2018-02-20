@@ -10,6 +10,8 @@ I7100=1473    ; Servo IC0 Max Phase/PWM Frequency Control
 I7101=3       ; Servo IC0 Phase Clock Frequency Control
 I7102=1       ; Servo IC0 Servo Clock Frequency Control
 
+#I7140=5
+
 
 
 I10=1677653   ; Servo Interrupt Time
@@ -44,6 +46,7 @@ I8005=$0           ; end of table
 I803=$3505    I804=$3505    ; Motor 8 position and velocity feedback
 
 
+I100,8,100=0
 
 ; Motor activation and Commutation
 I800=1      ; Motors 8 active
