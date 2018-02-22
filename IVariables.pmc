@@ -168,6 +168,7 @@ I817=20      ; Max Program Acceleration
 I819=20      ; Max Jog/Home Acceleration
 I821=0       ; Jog/Home s-curve time (ms)
 I822=110    ; Jog Speed
+I823=-64    ; Home speed and direction
 
 I811=64000  ; Following error limit
 
