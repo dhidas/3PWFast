@@ -160,17 +160,23 @@ I876=0.5
 
 
 
+// Position limits
+i813=25000
+i814=-3900000
+
 
 // Velocity and acceleration
 I815=20      ; Limit/abort deceleration rate
 I816=110    ; Max Program Velocity
-I817=20      ; Max Program Acceleration
-I819=20      ; Max Jog/Home Acceleration
+I817=1      ; Max Program Acceleration
+I819=1      ; Max Jog/Home Acceleration
 I821=0       ; Jog/Home s-curve time (ms)
 I822=110    ; Jog Speed
 I823=-64    ; Home speed and direction
+I826=-50000 ; Home offset position
 
 I811=64000  ; Following error limit
+I812=50000  ; Following warning limit
 
 
 
